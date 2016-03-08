@@ -1,4 +1,5 @@
 var Dispatcher = require('../dispatcher/appDispatcher.js');
+var $ = require('jquery');
 var _ = require('lodash');
 var EventEmitter = require('events').EventEmitter;
 
@@ -8,7 +9,7 @@ var API = require('../_API.js');
 //----------------------------------------------------------
 // State Variables -- Dispatcher Updates and Component Can Access Through AuthorStore
 //----------------------------------------------------------
-var _dataList = [];
+var _testDataList = [];
 
 
 //----------------------------------------------------------
@@ -17,9 +18,10 @@ var _dataList = [];
 
 var changeListenerCB = null
 
-var AuthorStore = _.assign({},EventEmitter.prototype, {
+var TestStore = _.assign({},EventEmitter.prototype, {
   //note, the methods below have here will have EventEmitter's `.emit` ,` .on`,`.removeChangeListener`,  methods
     
+    // will need to REMOVE this change listenter when component unmounts
     storeChange_fn: null,
 
     addChangeListener: function(cb){
@@ -41,44 +43,46 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
    // -----------
 
     getDataList: function(){
-      return _authorsList;
+      return _testDataList;
     },
 
 });
 
 //every store that is registered w/ the dispatcher 
 //  is notified of every single action
-Dispatcher.register( function(actionBlock) {
+Dispatcher.register( function(dispatchObj) {
 
-  switch(actionBlock.actionType) {
-    case ActionTypes.GET_ALL_AUTHORS:
-      _authorsList = actionBlock.authorsList;      
-      AuthorStore.emitChange();
+  switch(dispatchObj.actionType) {
+    case ActionTypes.GET_MANY_TEST:
+      _testDataList = dispatchObj.actionPayload;
+      console.log('DATA ON STORE')
+      console.log(_testDataList)     
+      TestStore.emitChange();
       break;
     case ActionTypes.CREATE_AUTHOR:
-      newAuthor = actionBlock.authorData;
-      AuthorStore.emitChange();
+      newAuthor = dispatchObj.authorData;
+      TestStore.emitChange();
       break;
     
     case ActionTypes.GET_SINGLE_AUTHOR:
-      // console.log(actionBlock.authorData)
+      // console.log(dispatchObj.authorData)
       _authorsList = []
-      _authorsList.push(actionBlock.authorData)
-      _authorEditFormState = actionBlock.authorData
-      AuthorStore.emitChange();
+      _authorsList.push(dispatchObj.authorData)
+      _authorEditFormState = dispatchObj.authorData
+      TestStore.emitChange();
       break;
 
     case ActionTypes.UPDATE_AUTHOR:
       _recordHasBeenUpdated = true;
-      AuthorStore.emitChange();
+      TestStore.emitChange();
       break;
     
     case ActionTypes.EDIT_FORM_UPDATE_UI:
       console.log('ui state per store')
-      console.log(actionBlock.authorData)
-      if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(actionBlock.authorData) ){
-        _authorEditFormState = actionBlock.authorData;
-        AuthorStore.emitChange();
+      console.log(dispatchObj.authorData)
+      if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(dispatchObj.authorData) ){
+        _authorEditFormState = dispatchObj.authorData;
+        TestStore.emitChange();
       }
       break;
 
@@ -91,7 +95,7 @@ Dispatcher.register( function(actionBlock) {
     case ActionTypes.DELETE_AUTHOR: 
       // console.log('author was deleted, mayne!!!');
       _recordHasBeenUpdated = true
-      AuthorStore.emitChange();
+      TestStore.emitChange();
     
     default:
       //no operation
@@ -99,4 +103,4 @@ Dispatcher.register( function(actionBlock) {
   }
 })
 
-module.exports = AuthorStore;
+module.exports = TestStore;

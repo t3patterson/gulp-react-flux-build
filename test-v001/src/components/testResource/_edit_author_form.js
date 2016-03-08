@@ -2,8 +2,8 @@ var React = require('react');
 var _ = require('lodash')
 
 var AuthorActions = require('../../actions/authorActions.js');
-
 var CheckBoxComponent = require('../common/checkBox.js')
+
 
 var EditAuthorForm = React.createClass({
   

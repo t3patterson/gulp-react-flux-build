@@ -47797,36 +47797,54 @@ module.exports = require('./lib/React');
 "use strict"
 var _ = require('lodash');
 var apiBaseURL = 'https://fluxsetup.firebaseio.com/dummy'
-var endURL = ".json"
-var authKey = "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
 
 
 var db_utils = {
-  buildURL: function (base, extensions, fileType, paramsObj, key){
+  build_fb_URL: function (base, extensions, paramsObj){
+    var authKey = "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
+    var fileType = ".json"
 
     function _buildQueryStringParams(paramsObj){
       var qryStr = ''
       var paramsObj = paramsObj || {}
-      paramsObj.auth = key
-      console.log(paramsObj)
+      paramsObj.auth = authKey
       for (var prop in paramsObj){
-        console.log(qryStr)
         qryStr += "&" + prop + "=" + paramsObj[prop];
       }
       
-      return '?'+qryStr.substr(1) 
+      return '?' + qryStr.substr(1) 
     }
 
     var ext
     ext = '' 
     if ( extensions ){ ext = "/" + extensions }
-    console.log(ext)
+    
     var qryStr = ''
-
     var qryStr = _buildQueryStringParams(paramsObj)
     return base + ext + fileType + qryStr
   },
 
+  returnEmptyPromise: function(data){
+    console.log('promise so empty')
+    return ( new $.Deferred() ).resolve(data)
+  },
+
+  parseFBDataToArray: function(fb_data_objects){
+    console.log('huuuu')
+    var p = new $.Deferred()
+    var fbArray = _(fb_data_objects)
+      .keys()
+      .map(function(kStr){
+        console.log(fb_data_objects[kStr])
+        fb_data_objects[kStr]._key = kStr
+        return fb_data_objects[kStr]
+      })
+      .value()
+
+    p.resolve(fbArray)
+
+    return p
+  }
 }
 
 
@@ -47840,18 +47858,20 @@ function APIConstructor(){
 
     var apiReqSettings = function(optionsObj, record){
 
+      var dataProcessing_fn = db_utils.returnEmptyPromise
+
       switch (reqType) {
         case ('getMany'):
           console.log(optionsObj)
-          var url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey) 
+          var url = db_utils.build_fb_URL(apiBaseURL, null, optionsObj) 
           apiParams.url = url;
           apiParams.type = 'get';
-          console.log(JSON.stringify(optionsObj))
+          dataProcessing_fn = db_utils.parseFBDataToArray  
           break;
 
         case ('getSingle'):
 
-          var url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey) 
+          var url = db_utils.build_fb_URL(apiBaseURL, null, optionsObj) 
           console.log(url)
           apiParams.url = url;
           apiParams.type = 'get';
@@ -47859,7 +47879,7 @@ function APIConstructor(){
           break;
 
         case ('create'):
-          apiParams.url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey)
+          apiParams.url = db_utils.build_fb_URL(apiBaseURL, null, optionsObj)
           apiParams.type = 'post';
           apiParams.contentType = 'application/json';
           console.log(optionsObj)
@@ -47868,25 +47888,23 @@ function APIConstructor(){
 
         case ('update'):
           apiParams.type = 'patch';
-          apiParams.url = db_utils.buildURL(apiBaseURL, record, endURL, optionsObj, authKey);
+          apiParams.url = db_utils.build_fb_URL(apiBaseURL, record, optionsObj);
           console.log(apiParams.url)
           apiParams.contentType = 'application/json';
           apiParams.data = JSON.stringify(optionsObj);
           break;
         
         case ('destroy'):
-          apiParams.url = db_utils.buildURL(apiBaseURL, optionsObj.key, endURL, null, authKey);
+          apiParams.url = db_utils.build_fb_URL(apiBaseURL, optionsObj.key, null);
           console.log('deleter')
           console.log(apiParams.url)
           apiParams.type = 'delete';
       }
 
-      // console.log(dataObject)
-      // console.log(apiParams);
-      return $.ajax(apiParams);
+        return $.ajax(apiParams).then(dataProcessing_fn);
+
     }
 
-    console.log(apiParams)
     return apiReqSettings
   }
 
@@ -47906,6 +47924,8 @@ module.exports =  API
 },{"lodash":8}],206:[function(require,module,exports){
 "use strict"
 var API = require('./_API.js')
+
+
 
 
 // ===========================================
@@ -47963,9 +47983,9 @@ console.log('API TESTER')
 //   hey: 'how are you'
 // }
 
-API.destroy({key: '1'}).then(function(d){
-  console.log(d)
-})
+// API.destroy({key: '1'}).then(function(d){
+//   console.log(d)
+// })
 
 
 
@@ -48002,82 +48022,85 @@ var API = require('../_API.js');
 var ActionTypes = require('../constants/actionTypes.js');
 
 var AuthorActions = {
-  postNewAuthorToDB: function(data){
-    console.log('posting to db')
+  postToDB: function(data){
+    // console.log('posting to db')
     API.create(data).then(function(savedRecord){
       Dispatcher.dispatch({
-        actionType: ActionTypes.CREATE_AUTHOR,
+        actionType: ActionTypes.CREATE_TEST,
         authorData: savedRecord
       })
     })  
   },
 
-  fetchAuthorsFromDB: function(){
-    API.getAll().then(function(authorsData){
+  getManyFromDB: function(options){
+    API.getMany().then(function(data){
       // console.log('--- from database in ACTION---')
-      // console.log(authorsData.results)
+      // console.log(data)
+
       Dispatcher.dispatch({
-        actionType: ActionTypes.GET_ALL_AUTHORS,
-        authorsList: authorsData.results 
+        actionType: ActionTypes.GET_MANY_TEST,
+        actionPayload: data 
       })
     })
   },
 
-  getSingleAuthor: function(dataObj){
+  getSingleFromDB: function(dataObj){
     console.log('...getting single author...')
     API.getSingle(dataObj).then(function(data){
       console.log(data.results[0])
       Dispatcher.dispatch({
-        actionType: ActionTypes.GET_SINGLE_AUTHOR,
+        actionType: ActionTypes.GET_SINGLE_TEST,
         authorData: data.results[0] 
       })
     });
   },
 
-  updateSingleAuthor: function(dataObj){
+  updateDB: function(dataObj){
     console.log(dataObj)
     API.update(dataObj).then(function(d){
       console.log('Action saved to db successfully!')
       console.log(d)
       Dispatcher.dispatch({
-        actionType: ActionTypes.UPDATE_AUTHOR,
+        actionType: ActionTypes.UPDATE_TEST,
         authorData: d
       })
     })
 
   },
 
-  setEditFormState: function(dataObj){
-    console.log('setting edit form state..')
-    Dispatcher.dispatch({
-      actionType: ActionTypes.EDIT_FORM_UPDATE_UI, 
-      authorData: dataObj
-    })
-  },
-
-  resetEditFormState: function(){
-    Dispatcher.dispatch({
-      actionType: ActionTypes.RESET_EDIT_FORM_STATE
-    })
-  },
-
-  deleteSingleAuthor: function(dataObj){
+  deleteSingleInDB: function(dataObj){
     API.destroy(dataObj).then(function(d){
       console.log('Record DESRTOYED!')
       console.log(d)
       console.log('=======')
 
       Dispatcher.dispatch({
-        actionType: ActionTypes.DELETE_AUTHOR,
+        actionType: ActionTypes.DESTROY_TEST,
         authorData: dataObj
       })
     })
   }
+
+  // setEditFormState: function(dataObj){
+  //   console.log('setting edit form state..')
+  //   Dispatcher.dispatch({
+  //     actionType: ActionTypes.EDIT_FORM_UPDATE_UI, 
+  //     authorData: dataObj
+  //   })
+  // },
+
+  // resetEditFormState: function(){
+  //   Dispatcher.dispatch({
+  //     actionType: ActionTypes.RESET_EDIT_FORM_STATE
+  //   })
+  // },
+
+  
 }
 
 module.exports = AuthorActions;
 
-},{"../_API.js":205,"../constants/actionTypes.js":215,"../dispatcher/appDispatcher.js":216}],209:[function(require,module,exports){
+},{"../_API.js":205,"../constants/actionTypes.js":216,"../dispatcher/appDispatcher.js":217}],209:[function(require,module,exports){
 "use strict";
 var React = require('react');
 
@@ -48189,61 +48212,126 @@ var Home = React.createClass({displayName: "Home",
 module.exports = Home
 
 },{"react":204,"react-router":40}],214:[function(require,module,exports){
+var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
+
+var TestUsersList = React.createClass({displayName: "TestUsersList",
+  
+  propTypes: {
+    dataList: React.PropTypes.array.isRequired
+  },
+
+  _createAuthorRows: function(usr,i){
+    return (
+      React.createElement("tr", {key: i}, 
+        React.createElement("td", null, 
+          i+1
+        ), 
+        
+        React.createElement("td", null, 
+          usr.userName
+        ), 
+
+        React.createElement("td", null, 
+          usr.name
+        )
+      )
+    );
+  },
+
+  render: function(){
+    return (
+      React.createElement("table", {className: "table"}, 
+        React.createElement("thead", null, 
+          React.createElement("tr", null, 
+            React.createElement("th", null, "#"), 
+            React.createElement("th", null, "ID"), 
+            React.createElement("th", null, "Name")
+          )
+        ), 
+        React.createElement("tbody", null, 
+          this.props.dataList.map(this._createAuthorRows)
+        )
+      )
+    )
+  }
+})
+
+module.exports = TestUsersList;
+
+},{"react":204,"react-router":40}],215:[function(require,module,exports){
 var React = require('react')
 
-var AuthorActions = require('../../actions/testResourceActions.js');
-var AuthorStore = require('../../stores/testResourceStore.js');
+var TestActions = require('../../actions/testResourceActions.js');
+var TestStore = require('../../stores/testResourceStore.js');
 
-var AuthorsPage = React.createClass({displayName: "AuthorsPage",
+var TableComponent = require('./_many-records_table-component.js')
+
+var TestPage = React.createClass({displayName: "TestPage",
   
   getInitialState: function(){
-    this._componentUnmounting = false
     
     return {
-      authorsList: [],
+      dataList: [],
     }
   },
   
   //(1)
   componentDidMount: function(){
-      console.log('authors_page.js mounted, bits');
-      this._onChange();
-      AuthorActions.fetchAuthorsFromDB();
+    console.log('authors_page.js mounted, bits');
+    console.log(TestActions)
+    
+    TestStore.addChangeListener(function(){
+      console.log('inside the component')
+      var results = TestStore.getDataList()
+      console.log(results)
+      this.setState({dataList: results})
+    }.bind(this))
+
+    TestActions.getManyFromDB()
   },
 
   componentWillUnmount: function(){
     // console.log('component unmounting --- AuthorsPage')
     
-    AuthorStore.removeChangeListener();
+    // AuthorStore.removeChangeListener();
   },
 
   render: function(){
+    console.log('current state of state:')
+    console.log(this.state.dataList)
     return (
       React.createElement("div", null, 
-        React.createElement("h1", null, "Flux Tester")
-        
+        React.createElement("h1", null, "Flux Tester"), 
+        React.createElement(TableComponent, {dataList: this.state.dataList})
       )
     );
   }
 })
 
-module.exports = AuthorsPage;
+module.exports = TestPage;
 
-},{"../../actions/testResourceActions.js":208,"../../stores/testResourceStore.js":219,"react":204}],215:[function(require,module,exports){
+},{"../../actions/testResourceActions.js":208,"../../stores/testResourceStore.js":220,"./_many-records_table-component.js":214,"react":204}],216:[function(require,module,exports){
 var keyMirror = require('react/lib/keyMirror');
 
 var ActionTypes = keyMirror({
-  GET_DATA: null, //sample
+  GET_MANY_TEST: null, //sample
+  GET_SINGLE_TEST: null,
+  CREATE_TEST: null, 
+  UPDATE_TEST: null,
+  DESTROY_TEST: null
+
 })
 
 module.exports = ActionTypes
 
-},{"react/lib/keyMirror":189}],216:[function(require,module,exports){
+},{"react/lib/keyMirror":189}],217:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":3}],217:[function(require,module,exports){
+},{"flux":3}],218:[function(require,module,exports){
 /*eslint-disable strict*/
 
 // put jQuery in global namespace
@@ -48266,7 +48354,7 @@ Router.run(appRoutes, Router.HistoryLocation, function(Handler){
 // TESTERS
 require('./_setup-test.js')
 
-},{"./_setup-test.js":206,"./_utils.js":207,"./routes.js":218,"jquery":7,"react":204,"react-router":40}],218:[function(require,module,exports){
+},{"./_setup-test.js":206,"./_utils.js":207,"./routes.js":219,"jquery":7,"react":204,"react-router":40}],219:[function(require,module,exports){
 "use strict"
 var React = require('react');
 //React-Router
@@ -48308,8 +48396,9 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/about/component-about-page.js":209,"./components/app.js":210,"./components/component-home-page.js":212,"./components/component-not-found-page.js":213,"./components/testResource/component-test-page.js":214,"react":204,"react-router":40}],219:[function(require,module,exports){
+},{"./components/about/component-about-page.js":209,"./components/app.js":210,"./components/component-home-page.js":212,"./components/component-not-found-page.js":213,"./components/testResource/component-test-page.js":215,"react":204,"react-router":40}],220:[function(require,module,exports){
 var Dispatcher = require('../dispatcher/appDispatcher.js');
+var $ = require('jquery');
 var _ = require('lodash');
 var EventEmitter = require('events').EventEmitter;
 
@@ -48319,7 +48408,7 @@ var API = require('../_API.js');
 //----------------------------------------------------------
 // State Variables -- Dispatcher Updates and Component Can Access Through AuthorStore
 //----------------------------------------------------------
-var _dataList = [];
+var _testDataList = [];
 
 
 //----------------------------------------------------------
@@ -48328,9 +48417,10 @@ var _dataList = [];
 
 var changeListenerCB = null
 
-var AuthorStore = _.assign({},EventEmitter.prototype, {
+var TestStore = _.assign({},EventEmitter.prototype, {
   //note, the methods below have here will have EventEmitter's `.emit` ,` .on`,`.removeChangeListener`,  methods
     
+    // will need to REMOVE this change listenter when component unmounts
     storeChange_fn: null,
 
     addChangeListener: function(cb){
@@ -48352,44 +48442,46 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
    // -----------
 
     getDataList: function(){
-      return _authorsList;
+      return _testDataList;
     },
 
 });
 
 //every store that is registered w/ the dispatcher 
 //  is notified of every single action
-Dispatcher.register( function(actionBlock) {
+Dispatcher.register( function(dispatchObj) {
 
-  switch(actionBlock.actionType) {
-    case ActionTypes.GET_ALL_AUTHORS:
-      _authorsList = actionBlock.authorsList;      
-      AuthorStore.emitChange();
+  switch(dispatchObj.actionType) {
+    case ActionTypes.GET_MANY_TEST:
+      _testDataList = dispatchObj.actionPayload;
+      console.log('DATA ON STORE')
+      console.log(_testDataList)     
+      TestStore.emitChange();
       break;
     case ActionTypes.CREATE_AUTHOR:
-      newAuthor = actionBlock.authorData;
-      AuthorStore.emitChange();
+      newAuthor = dispatchObj.authorData;
+      TestStore.emitChange();
       break;
     
     case ActionTypes.GET_SINGLE_AUTHOR:
-      // console.log(actionBlock.authorData)
+      // console.log(dispatchObj.authorData)
       _authorsList = []
-      _authorsList.push(actionBlock.authorData)
-      _authorEditFormState = actionBlock.authorData
-      AuthorStore.emitChange();
+      _authorsList.push(dispatchObj.authorData)
+      _authorEditFormState = dispatchObj.authorData
+      TestStore.emitChange();
       break;
 
     case ActionTypes.UPDATE_AUTHOR:
       _recordHasBeenUpdated = true;
-      AuthorStore.emitChange();
+      TestStore.emitChange();
       break;
     
     case ActionTypes.EDIT_FORM_UPDATE_UI:
       console.log('ui state per store')
-      console.log(actionBlock.authorData)
-      if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(actionBlock.authorData) ){
-        _authorEditFormState = actionBlock.authorData;
-        AuthorStore.emitChange();
+      console.log(dispatchObj.authorData)
+      if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(dispatchObj.authorData) ){
+        _authorEditFormState = dispatchObj.authorData;
+        TestStore.emitChange();
       }
       break;
 
@@ -48402,7 +48494,7 @@ Dispatcher.register( function(actionBlock) {
     case ActionTypes.DELETE_AUTHOR: 
       // console.log('author was deleted, mayne!!!');
       _recordHasBeenUpdated = true
-      AuthorStore.emitChange();
+      TestStore.emitChange();
     
     default:
       //no operation
@@ -48410,6 +48502,6 @@ Dispatcher.register( function(actionBlock) {
   }
 })
 
-module.exports = AuthorStore;
+module.exports = TestStore;
 
-},{"../_API.js":205,"../constants/actionTypes.js":215,"../dispatcher/appDispatcher.js":216,"events":2,"lodash":8}]},{},[217]);
+},{"../_API.js":205,"../constants/actionTypes.js":216,"../dispatcher/appDispatcher.js":217,"events":2,"jquery":7,"lodash":8}]},{},[218]);

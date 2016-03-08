@@ -2,6 +2,8 @@
 var API = require('./_API.js')
 
 
+
+
 // ===========================================
 // ---------- TEST API MODULE HERE ----------
 console.log('API TESTER')
@@ -57,9 +59,9 @@ console.log('API TESTER')
 //   hey: 'how are you'
 // }
 
-API.destroy({key: '1'}).then(function(d){
-  console.log(d)
-})
+// API.destroy({key: '1'}).then(function(d){
+//   console.log(d)
+// })
 
 
 

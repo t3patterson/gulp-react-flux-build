@@ -2,13 +2,13 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 
-var AuthorsList = React.createClass({
+var TestUsersList = React.createClass({
   
   propTypes: {
-    authorsData: React.PropTypes.array.isRequired
+    dataList: React.PropTypes.array.isRequired
   },
 
-  _createAuthorRows: function(auth,i){
+  _createAuthorRows: function(usr,i){
     return (
       <tr key={i}>
         <td>
@@ -16,17 +16,11 @@ var AuthorsList = React.createClass({
         </td>
         
         <td>
-          <Link 
-            to="show-single-author" 
-            params={{autId: auth.name_id}} > 
-
-            {auth.name_id} 
-
-            </Link>
+          {usr.userName}
         </td>
 
         <td>
-          {auth.firstName + " " + auth.lastName}
+          {usr.name}
         </td>
       </tr>
     );
@@ -43,11 +37,11 @@ var AuthorsList = React.createClass({
           </tr>
         </thead>
         <tbody>
-          {this.props.authorsList.map(this._createAuthorRows)}
+          {this.props.dataList.map(this._createAuthorRows)}
         </tbody>
       </table>
     )
   }
 })
 
-module.exports = AuthorsList;
+module.exports = TestUsersList;
