@@ -1,35 +1,36 @@
 "use strict"
 var _ = require('lodash');
-
 var apiBaseURL = 'https://fluxsetup.firebaseio.com/dummy'
-
 var endURL = ".json"
-
-var params = {
-  auth: "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
-};
-
-function buildURL (base, extensions, fileType, paramsObj){
-  var ext
-  ext = '' 
-  if ( extensions ){ ext = extensions }
-  
-  var qryStr = ''
-
-  if ( paramsObj ){ qryStr = _buildQueryStringParams(paramsObj) }
-  return base + ext + fileType + qryStr
-}
+var authKey = "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
 
 
-function _buildQueryStringParams(paramsObj){
-  var qryStr = ''
-  console.log(paramsObj)
-  for (var prop in paramsObj){
-    console.log(qryStr)
-    qryStr += "&" + prop + "=" + paramsObj[prop];
-  }
-  
-  return '?'+qryStr.substr(1)
+var db_utils = {
+  buildURL: function (base, extensions, fileType, paramsObj, key){
+
+    function _buildQueryStringParams(paramsObj){
+      var qryStr = ''
+      var paramsObj = paramsObj || {}
+      paramsObj.auth = key
+      console.log(paramsObj)
+      for (var prop in paramsObj){
+        console.log(qryStr)
+        qryStr += "&" + prop + "=" + paramsObj[prop];
+      }
+      
+      return '?'+qryStr.substr(1) 
+    }
+
+    var ext
+    ext = '' 
+    if ( extensions ){ ext = "/" + extensions }
+    console.log(ext)
+    var qryStr = ''
+
+    var qryStr = _buildQueryStringParams(paramsObj)
+    return base + ext + fileType + qryStr
+  },
+
 }
 
 
@@ -41,45 +42,47 @@ function APIConstructor(){
 
   function requestType(reqType){
 
-    var apiReqSettings = function(optionsObj){
+    var apiReqSettings = function(optionsObj, record){
 
       switch (reqType) {
         case ('getMany'):
           console.log(optionsObj)
-          var url = buildURL(apiBaseURL, null, endURL, optionsObj) 
-          console.log(url)
+          var url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey) 
           apiParams.url = url;
           apiParams.type = 'get';
           console.log(JSON.stringify(optionsObj))
           break;
 
         case ('getSingle'):
-          apiParams.url = apiURL;
+
+          var url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey) 
+          console.log(url)
+          apiParams.url = url;
           apiParams.type = 'get';
+
           break;
 
         case ('create'):
-          apiParams = apiURL
+          apiParams.url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey)
           apiParams.type = 'post';
           apiParams.contentType = 'application/json';
+          console.log(optionsObj)
           apiParams.data = JSON.stringify(optionsObj);
           break;
 
         case ('update'):
-          apiParams.type = 'put';
-          apiParams.url = apiURL + '/' + dataObject.objectId;
+          apiParams.type = 'patch';
+          apiParams.url = db_utils.buildURL(apiBaseURL, record, endURL, optionsObj, authKey);
+          console.log(apiParams.url)
           apiParams.contentType = 'application/json';
-          
-          if(dataObject.objectId) { delete dataObject.objectId;  }
-          if(dataObject.updatedAt){ delete dataObject.updatedAt; }
-          if(dataObject.createdAt){ delete dataObject.createdAt; }
-          apiParams.data = JSON.stringify(dataObject);
+          apiParams.data = JSON.stringify(optionsObj);
           break;
         
-        case ('delete'):
-          apiParams.url = apiURL + '/' + dataObject.objectId;
+        case ('destroy'):
+          apiParams.url = db_utils.buildURL(apiBaseURL, optionsObj.key, endURL, null, authKey);
+          console.log('deleter')
+          console.log(apiParams.url)
           apiParams.type = 'delete';
-          apiParams.data = JSON.stringify(dataObject);
       }
 
       // console.log(dataObject)
@@ -96,7 +99,7 @@ function APIConstructor(){
     getSingle: requestType('getSingle'),
     create: requestType('create'),
     update: requestType('update'),
-    destroy: requestType('delete')
+    destroy: requestType('destroy')
   }
 }
 

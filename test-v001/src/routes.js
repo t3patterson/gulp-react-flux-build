@@ -16,7 +16,7 @@ var NotFoundPage = require('./components/component-not-found-page.js');
 
 var HomeView         = require('./components/component-home-page.js');
 var AboutView        = require('./components/about/component-about-page.js');
-var TestView        = require('./components/testResource/component-test-page.js');
+var TestView        = require( './components/testResource/component-test-page.js');
 
 
 //<Route name="authors" path="/authors" handler={AuthorsView}/>

@@ -47796,36 +47796,37 @@ module.exports = require('./lib/React');
 },{"./lib/React":77}],205:[function(require,module,exports){
 "use strict"
 var _ = require('lodash');
-
 var apiBaseURL = 'https://fluxsetup.firebaseio.com/dummy'
-
 var endURL = ".json"
-
-var params = {
-  auth: "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
-};
-
-function buildURL (base, extensions, fileType, paramsObj){
-  var ext
-  ext = '' 
-  if ( extensions ){ ext = extensions }
-  
-  var qryStr = ''
-
-  if ( paramsObj ){ qryStr = _buildQueryStringParams(paramsObj) }
-  return base + ext + fileType + qryStr
-}
+var authKey = "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
 
 
-function _buildQueryStringParams(paramsObj){
-  var qryStr = ''
-  console.log(paramsObj)
-  for (var prop in paramsObj){
-    console.log(qryStr)
-    qryStr += "&" + prop + "=" + paramsObj[prop];
-  }
-  
-  return '?'+qryStr.substr(1)
+var db_utils = {
+  buildURL: function (base, extensions, fileType, paramsObj, key){
+
+    function _buildQueryStringParams(paramsObj){
+      var qryStr = ''
+      var paramsObj = paramsObj || {}
+      paramsObj.auth = key
+      console.log(paramsObj)
+      for (var prop in paramsObj){
+        console.log(qryStr)
+        qryStr += "&" + prop + "=" + paramsObj[prop];
+      }
+      
+      return '?'+qryStr.substr(1) 
+    }
+
+    var ext
+    ext = '' 
+    if ( extensions ){ ext = "/" + extensions }
+    console.log(ext)
+    var qryStr = ''
+
+    var qryStr = _buildQueryStringParams(paramsObj)
+    return base + ext + fileType + qryStr
+  },
+
 }
 
 
@@ -47837,45 +47838,47 @@ function APIConstructor(){
 
   function requestType(reqType){
 
-    var apiReqSettings = function(optionsObj){
+    var apiReqSettings = function(optionsObj, record){
 
       switch (reqType) {
         case ('getMany'):
           console.log(optionsObj)
-          var url = buildURL(apiBaseURL, null, endURL, optionsObj) 
-          console.log(url)
+          var url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey) 
           apiParams.url = url;
           apiParams.type = 'get';
           console.log(JSON.stringify(optionsObj))
           break;
 
         case ('getSingle'):
-          apiParams.url = apiURL;
+
+          var url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey) 
+          console.log(url)
+          apiParams.url = url;
           apiParams.type = 'get';
+
           break;
 
         case ('create'):
-          apiParams = apiURL
+          apiParams.url = db_utils.buildURL(apiBaseURL, null, endURL, optionsObj, authKey)
           apiParams.type = 'post';
           apiParams.contentType = 'application/json';
+          console.log(optionsObj)
           apiParams.data = JSON.stringify(optionsObj);
           break;
 
         case ('update'):
-          apiParams.type = 'put';
-          apiParams.url = apiURL + '/' + dataObject.objectId;
+          apiParams.type = 'patch';
+          apiParams.url = db_utils.buildURL(apiBaseURL, record, endURL, optionsObj, authKey);
+          console.log(apiParams.url)
           apiParams.contentType = 'application/json';
-          
-          if(dataObject.objectId) { delete dataObject.objectId;  }
-          if(dataObject.updatedAt){ delete dataObject.updatedAt; }
-          if(dataObject.createdAt){ delete dataObject.createdAt; }
-          apiParams.data = JSON.stringify(dataObject);
+          apiParams.data = JSON.stringify(optionsObj);
           break;
         
-        case ('delete'):
-          apiParams.url = apiURL + '/' + dataObject.objectId;
+        case ('destroy'):
+          apiParams.url = db_utils.buildURL(apiBaseURL, optionsObj.key, endURL, null, authKey);
+          console.log('deleter')
+          console.log(apiParams.url)
           apiParams.type = 'delete';
-          apiParams.data = JSON.stringify(dataObject);
       }
 
       // console.log(dataObject)
@@ -47892,7 +47895,7 @@ function APIConstructor(){
     getSingle: requestType('getSingle'),
     create: requestType('create'),
     update: requestType('update'),
-    destroy: requestType('delete')
+    destroy: requestType('destroy')
   }
 }
 
@@ -47911,9 +47914,16 @@ console.log('API TESTER')
 
 // 1) GET ALL Users
 // ----------------------
-API.getMany({orderBy:'"$key"', limitToFirst: 5}).then(function(data){console.log(data)})
+// API.getMany({orderBy:'"$key"' , limitToFirst: 5}).then(function(data){console.log(data)})
 
-// 2) GET SINGLE
+// 4) GET SINGLE
+// ----------------------
+
+// API.getSingle({orderBy: '"userName"' , equalTo: '"commodo87"'}).then(function(data){console.log(data)})
+
+
+
+// 3) CREATE user
 // ----------------------
 // var user = {
 //     "guid": "353c4f88-1eaf-4262-add5-04d8638f993c",
@@ -47930,33 +47940,32 @@ API.getMany({orderBy:'"$key"', limitToFirst: 5}).then(function(data){console.log
 //     "ssn": "222-095-095"
 //   }
 
-// API.create(user).then(function(d){
+// API.create( user ).then(function(d){
 //   console.log('success?')
 //   console.log(d)
 // })
 
 
-// 2) CREATE user
-// ----------------------
+// 4) UPDATE user
+// --------------------------
 // var user = {
-//     "guid": "353c4f88-1eaf-4262-add5-04d8638f993c",
-//     "isActive": false,
-//     "picture": "https://robohash.org/56ddd56ffb4d9abbd9908e50?250x250",
-//     "age": 43,
-//     "favoriteColor": "green",
-//     "name": "Spencer Holland",
-//     "gender": "male",
-//     "email": "spencerholland@bolax.com",
-//     "userName": "Lorem56",
-//     "about": "Sunt incididunt sint occaecat sint nisi in amet anim nisi nisi officia veniam. Dolor cillum ea labore do labore commodo proident esse elit ipsum quis pariatur exercitation. Magna dolor ea eiusmod sunt consectetur id. Qui aliqua in id nisi consectetur velit amet. Labore aliqua deserunt anim eiusmod. Commodo Lorem proident deserunt amet aliqua aliquip adipisicing.\r\n",
-//     "registered": "2013-08-30T01:10:02 +05:00",
-//     "ssn": "222-095-095"
-//   }
+//   hey: 'how are you'
+// }
 
-// API.create( JSON.stringify(user) ).then(function(d){
-//   console.log('success?')
+// API.update({"age" : 21, "userName" : 'Billy Bomb' }, '1').then(function(d){
 //   console.log(d)
 // })
+
+
+// 5) DELETE user
+// --------------------------
+// var user = {
+//   hey: 'how are you'
+// }
+
+API.destroy({key: '1'}).then(function(d){
+  console.log(d)
+})
 
 
 
@@ -48276,7 +48285,7 @@ var NotFoundPage = require('./components/component-not-found-page.js');
 
 var HomeView         = require('./components/component-home-page.js');
 var AboutView        = require('./components/about/component-about-page.js');
-var TestView        = require('./components/testResource/component-test-page.js');
+var TestView        = require( './components/testResource/component-test-page.js');
 
 
 //<Route name="authors" path="/authors" handler={AuthorsView}/>
