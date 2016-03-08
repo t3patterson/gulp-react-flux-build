@@ -15,3 +15,7 @@ Parse.initialize("gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF", "6kxwYiFzzXFzipipux
 Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(<Handler/>, document.querySelector('.container'));
 })
+
+
+// TESTERS
+require('./test-sandbox/_setup-test.js')

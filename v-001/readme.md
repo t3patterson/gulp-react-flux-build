@@ -3,7 +3,7 @@
 ##Configuration NOTE: Make sure that gulp program can be accessed
 1) set `npm` prefix: `$ npm config set prefix /usr/local`
 2) set `$ npm install gulp -g`
-
+3) 
 
 ###Setup Tips
 
@@ -14,7 +14,8 @@
 4. Test to see if home-page and about-page components are working
 
 ####API Module
-1) Configure `_API.js` module to your database, and see if you can fetch data.
+1) Configure `_API.js` module to your database, and see if you can fetch data. *Firebase* is the current default backend
+
 2) Execute the other methods in `_API.js` with dummy data
   - `getAll`
   - `getSingle`

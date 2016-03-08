@@ -11,18 +11,15 @@ var TestPage = React.createClass({
     
     return {
       dataList: [],
+      dataSingle: {}
     }
   },
   
   //(1)
   componentDidMount: function(){
-    console.log('authors_page.js mounted, bits');
-    console.log(TestActions)
     
     TestStore.addChangeListener(function(){
-      console.log('inside the component')
       var results = TestStore.getDataList()
-      console.log(results)
       this.setState({dataList: results})
     }.bind(this))
 
@@ -36,12 +33,12 @@ var TestPage = React.createClass({
   },
 
   render: function(){
-    console.log('current state of state:')
-    console.log(this.state.dataList)
     return (
       <div>
         <h1>Flux Tester</h1>
         <TableComponent dataList={this.state.dataList}/>
+        <hr/>
+
       </div>
     );
   }
