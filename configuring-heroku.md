@@ -54,6 +54,17 @@ app.listen(port, function(){
 
 
 #####4- Deploy to Heroku
-```sh
+1. Create App
+2. Push to heroku
+3. Start the app
+
+```
 $ heroku create «my-app-name»
+$ git push heroku «optional-alternative-branch:»master
+$ heroku ps:scale web=1
+```
+
+-- open in the browser:
+```
+$ heroku open
 ```
