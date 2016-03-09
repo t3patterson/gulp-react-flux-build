@@ -48267,8 +48267,6 @@ var Router = require('react-router');
 var utils = require('./_utils.js')
 var appRoutes = require('./routes.js');
 
-Parse.initialize("gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF", "6kxwYiFzzXFzipipuxLNsb5qCLTLCIhV7A46J5Od");
-
 
 Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(React.createElement(Handler, null), document.querySelector('.container'));
@@ -48276,9 +48274,9 @@ Router.run(appRoutes, Router.HistoryLocation, function(Handler){
 
 
 // TESTERS
-require('./test-sandbox/_setup-test.js')
+// require('./test-sandbox/_setup-test.js')
 
-},{"./_utils.js":206,"./routes.js":218,"./test-sandbox/_setup-test.js":220,"jquery":7,"react":204,"react-router":40}],218:[function(require,module,exports){
+},{"./_utils.js":206,"./routes.js":218,"jquery":7,"react":204,"react-router":40}],218:[function(require,module,exports){
 "use strict"
 var React = require('react');
 //React-Router
@@ -48293,11 +48291,11 @@ var Redirect = Router.Redirect;
 
 //Components
 var App = require('./components/app.js');
-var NotFoundPage = require('./components/component-not-found-page.js');
+var NotFoundPage     = require('./components/component-not-found-page.js');
 
 var HomeView         = require('./components/component-home-page.js');
 var AboutView        = require('./components/about/component-about-page.js');
-var TestView        = require( './components/testResource/component-test-page.js');
+var TestView         = require( './components/testResource/component-test-page.js');
 
 
 //<Route name="authors" path="/authors" handler={AuthorsView}/>
@@ -48428,75 +48426,4 @@ Dispatcher.register( function(dispatchObj) {
 
 module.exports = TestStore;
 
-},{"../_API.js":205,"../constants/actionTypes.js":215,"../dispatcher/appDispatcher.js":216,"events":2,"jquery":7,"lodash":8}],220:[function(require,module,exports){
-"use strict"
-var API = require('../_API.js')
-
-
-
-
-// ===========================================
-// ---------- TEST API MODULE HERE ----------
-console.log('API TESTER')
-
-// 1) GET ALL Users
-// ----------------------
-// API.getMany({orderBy:'"$key"' , limitToFirst: 5}).then(function(data){console.log(data)})
-
-// 4) GET SINGLE
-// ----------------------
-
-// API.getSingle({orderBy: '"userName"' , equalTo: '"commodo87"'}).then(function(data){console.log(data)})
-
-
-
-// 3) CREATE user
-// ----------------------
-// var user = {
-//     "guid": "353c4f88-1eaf-4262-add5-04d8638f993c",
-//     "isActive": false,
-//     "picture": "https://robohash.org/56ddd56ffb4d9abbd9908e50?250x250",
-//     "age": 43,
-//     "favoriteColor": "green",
-//     "name": "Spencer Holland",
-//     "gender": "male",
-//     "email": "spencerholland@bolax.com",
-//     "userName": "Lorem56",
-//     "about": "Sunt incididunt sint occaecat sint nisi in amet anim nisi nisi officia veniam. Dolor cillum ea labore do labore commodo proident esse elit ipsum quis pariatur exercitation. Magna dolor ea eiusmod sunt consectetur id. Qui aliqua in id nisi consectetur velit amet. Labore aliqua deserunt anim eiusmod. Commodo Lorem proident deserunt amet aliqua aliquip adipisicing.\r\n",
-//     "registered": "2013-08-30T01:10:02 +05:00",
-//     "ssn": "222-095-095"
-//   }
-
-// API.create( user ).then(function(d){
-//   console.log('success?')
-//   console.log(d)
-// })
-
-
-// 4) UPDATE user
-// --------------------------
-// var user = {
-//   hey: 'how are you'
-// }
-
-// API.update({"age" : 21, "userName" : 'Billy Bomb' }, '1').then(function(d){
-//   console.log(d)
-// })
-
-
-// 5) DELETE user
-// --------------------------
-// var user = {
-//   hey: 'how are you'
-// }
-
-// API.destroy({key: '1'}).then(function(d){
-//   console.log(d)
-// })
-
-
-
-// ------------------------------------------
-// ===========================================
-
-},{"../_API.js":205}]},{},[217]);
+},{"../_API.js":205,"../constants/actionTypes.js":215,"../dispatcher/appDispatcher.js":216,"events":2,"jquery":7,"lodash":8}]},{},[217]);

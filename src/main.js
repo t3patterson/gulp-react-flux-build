@@ -9,8 +9,6 @@ var Router = require('react-router');
 var utils = require('./_utils.js')
 var appRoutes = require('./routes.js');
 
-Parse.initialize("gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF", "6kxwYiFzzXFzipipuxLNsb5qCLTLCIhV7A46J5Od");
-
 
 Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(<Handler/>, document.querySelector('.container'));
@@ -18,4 +16,4 @@ Router.run(appRoutes, Router.HistoryLocation, function(Handler){
 
 
 // TESTERS
-require('./test-sandbox/_setup-test.js')
+// require('./test-sandbox/_setup-test.js')
