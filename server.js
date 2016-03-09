@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-var router = express.Router();
 
 // process.env.PORT lets the port get set by heroku
 var port = process.env.PORT || 3000

@@ -32,20 +32,28 @@
 var express = require('express');
 var app = express();
 
-// set the port of our application
-// process.env.PORT lets the port be set by Heroku
-var port = process.env.PORT || 8080;
+// process.env.PORT lets the port get set by heroku
+var port = process.env.PORT || 3000
 
-// make express look in the public directory for assets (css/js/img)
-app.use(express.static(__dirname + '/public'));
+//
+//   __dirname & __filename are a node.js global variables and  
+//   are the full filepaths of where the currently executing script 
+//   directory & current file  resides  (local to each module)
 
-// set the home page route
-app.get('/', function(req, res) {
-    // ejs render automatically looks in the views folder
-    res.render('index.html');
+app.use(express.static( __dirname + '/dist') )
+
+//in all cases send the `index.html`
+app.get('/*', function(req, res){
+  res.sendFile( __dirname+'/dist/index.html' )
 });
 
-app.listen(port, function() {
-    console.log('Our app is running on http://localhost:' + port);
-});
+app.listen(port, function(){
+  console.log('app is running here: http://localhost:' + port)
+})
+```
+
+
+#####4- Deploy to Heroku
+```sh
+$ heroku create «my-app-name»
 ```
