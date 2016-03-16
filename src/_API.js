@@ -1,12 +1,14 @@
 "use strict"
+var s = require('./secrets.js')
 var _ = require('lodash');
 var apiBaseURL = 'https://fluxsetup.firebaseio.com/dummy'
 
 
 var db_utils = {
   build_fb_URL: function (base, extensions, paramsObj){
-    var authKey = "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
+    var authKey = s.fb
     var fileType = ".json"
+    console.log
 
     function _buildQueryStringParams(paramsObj){
       var qryStr = ''

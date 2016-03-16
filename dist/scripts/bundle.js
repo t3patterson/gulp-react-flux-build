@@ -47795,14 +47795,16 @@ module.exports = require('./lib/React');
 
 },{"./lib/React":77}],205:[function(require,module,exports){
 "use strict"
+var s = require('./secrets.js')
 var _ = require('lodash');
 var apiBaseURL = 'https://fluxsetup.firebaseio.com/dummy'
 
 
 var db_utils = {
   build_fb_URL: function (base, extensions, paramsObj){
-    var authKey = "vQOguiKkqh6GXqOkYjw8Lr8SiQkMBHPWwP3LFmWE"
+    var authKey = s.fb
     var fileType = ".json"
+    console.log
 
     function _buildQueryStringParams(paramsObj){
       var qryStr = ''
@@ -47921,7 +47923,7 @@ var API = new APIConstructor();
 
 module.exports =  API
 
-},{"lodash":8}],206:[function(require,module,exports){
+},{"./secrets.js":219,"lodash":8}],206:[function(require,module,exports){
 "use strict"
 var superForEach = function(nodeList, cb){
 
@@ -48237,7 +48239,7 @@ var TestPage = React.createClass({displayName: "TestPage",
 
 module.exports = TestPage;
 
-},{"../../actions/testResourceActions.js":207,"../../stores/testResourceStore.js":219,"./_many-records_table-component.js":213,"react":204}],215:[function(require,module,exports){
+},{"../../actions/testResourceActions.js":207,"../../stores/testResourceStore.js":220,"./_many-records_table-component.js":213,"react":204}],215:[function(require,module,exports){
 var keyMirror = require('react/lib/keyMirror');
 
 var ActionTypes = keyMirror({
@@ -48320,6 +48322,12 @@ var routes = (
 module.exports = routes;
 
 },{"./components/about/component-about-page.js":208,"./components/app.js":209,"./components/component-home-page.js":211,"./components/component-not-found-page.js":212,"./components/testResource/component-test-page.js":214,"react":204,"react-router":40}],219:[function(require,module,exports){
+console.log("seeeeccrets!")
+module.exports = {
+  fbKey: "25WQwOtOS4Y6IwaK2kvBHzNMnYGzsWPGmAETbIyD"
+}
+
+},{}],220:[function(require,module,exports){
 var Dispatcher = require('../dispatcher/appDispatcher.js');
 var $ = require('jquery');
 var _ = require('lodash');
