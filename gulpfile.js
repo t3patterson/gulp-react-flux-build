@@ -27,7 +27,7 @@ var runSequence = require('run-sequence');
 
 //Setup Configuration Options
 var config = {
-  port: 3001,
+  port: 3000,
   devBaseUrl: 'http://localhost',
   paths: {
     html: './src/*.html',
@@ -93,19 +93,21 @@ gulp.task('js', function(){
     .pipe(connect.reload());
 });
 
-gulp.task('js-lint',function(){
-  return gulp.src(config.paths.js)
-    .pipe(esLint({config: 'eslint.config.json'}))
-    .pipe( esLint.format() )
-})
+// gulp.task('js-lint',function(){
+//   return gulp.src(config.paths.js)
+//     .pipe(esLint({config: 'eslint.config.json'}))
+//     .pipe( esLint.format() )
+// })
 
 gulp.task('scss', function(){
   gulp.src(config.paths.scss)
-    .pipe(sourcemaps.init())
-    .pipe(sass().on('error', sass.logError))
-    .pipe(sourcemaps.write())
-    .pipe(cssnano())
-    .pipe( gulp.dest( config.paths.dist+"/css/includes" ) )
+    .pipe( sourcemaps.init() )
+    .pipe( sass().on('error', sass.logError) )
+    .pipe( sourcemaps.write() )
+    .pipe( cssnano() )
+    .pipe( concat('styles.css') )
+    .pipe(gulp.dest(config.paths.dist + "/css/includes"))
+    .on('error', console.error.bind(console))
 })
 
 gulp.task('scss-lint', function(){
@@ -139,5 +141,5 @@ gulp.task('watch', function(){
   gulp.watch(config.paths.scss,['scss','scss-lint', 'bundle-css'])
 });
 
-gulp.task('default', ['html', 'images', 'scss', 'scss-lint', 'bundle-css', 'js', 'watch', 'js-lint', 'connect',]) 
+gulp.task('default', ['html', 'images', 'scss', 'scss-lint', 'bundle-css', 'js', 'watch', 'connect',]) 
   // gulp will run 'html', 'open', and 'watch' at when 'gulp' is typed in command line

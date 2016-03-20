@@ -1,10 +1,12 @@
-@import 'imported_stuff';
 *, *:before, *:after {
   box-sizing: border-box;
 }
 
+@import 'imported_stuff';
+
+
 body {
-  background: lighten(#89C4F4,20%);
+  background: lighten(#86E2D5,20%);
 }
 
 nav .navbar-nav{
